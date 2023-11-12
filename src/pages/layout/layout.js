@@ -1,10 +1,10 @@
 import NavBar from "../../components/navbar/navbar";
 import { Outlet } from "react-router-dom";
 
-function Layout() {
+function Layout(props) {
   return (
     <>
-      <NavBar />
+      <NavBar currentUser={props.currentUser} />
       <Outlet />
       <div className="footer p-16" />
     </>

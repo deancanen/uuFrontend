@@ -1,51 +1,19 @@
+import { useParams } from "react-router-dom";
 import ShoppingList from "../../components/shopping_list/ShoppingList";
 import ShoppingListUsers from "../../components/shopping_list_users/ShoppingListUsers";
 
-const shoppingList = {
-  name: "My beautiful shopping list",
-  author: "John Doe",
-  items: [
-    {
-      name: "Milk",
-      resolved: false,
-    },
-    {
-      name: "Eggs",
-      resolved: true,
-    },
-    {
-      name: "Bread",
-      resolved: false,
-    },
-    {
-      name: "Butter",
-      resolved: true,
-    },
-    {
-      name: "Cheese",
-      resolved: false,
-    },
-  ],
-  users: [
-    {
-      id: 1,
-      name: "John Doe",
-      role: "Author",
-    },
-    {
-      id: 2,
-      name: "Jane Doe",
-      role: "User",
-    },
-    {
-      id: 3,
-      name: "John Smith",
-      role: "User",
-    },
-  ],
-};
+function ShoppingListPage(props) {
+  const { shoppingLists, setShoppingLists } = props.shoppingLists;
+  const { id } = useParams();
+  const shoppingList = shoppingLists.find((list) => list.id === Number(id));
 
-function ShoppingListPage() {
+  if (!shoppingList)
+    return (
+      <h1 className="text-center mt-4 mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+        Shopping list with id '{id}' not found
+      </h1>
+    );
+
   const currentUser = shoppingList.users[Math.floor(Math.random() * 3)];
 
   return (
