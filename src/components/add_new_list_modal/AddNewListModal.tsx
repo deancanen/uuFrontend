@@ -1,15 +1,53 @@
 import { Button, Modal, TextInput, Toast } from "flowbite-react";
 import { useEffect, useState } from "react";
+import {
+  Role,
+  ShoppingListItems,
+  ShoppingListUsers,
+} from "../../interfaces/ShoppingList";
+import { API } from "../../service/restService";
+import { useMutation } from "react-query";
+import { useOutletContext } from "react-router-dom";
+import { OutletContext } from "../../pages/layout/layout";
 
-function AddNewListModal(props) {
+interface AddNewListRequest {
+  name: string;
+  author: string;
+  items: ShoppingListItems[];
+  users: ShoppingListUsers[];
+}
+
+interface FormElements extends HTMLFormControlsCollection {
+  shopping_list_name: HTMLInputElement;
+}
+interface InputFormElement extends HTMLFormElement {
+  readonly elements: FormElements;
+}
+
+async function addNewShoppingList(shoppingList: AddNewListRequest) {
+  const res = await API.post("/shoppingLists/create", shoppingList);
+  return res.data;
+}
+
+function AddNewListModal() {
   const [addNewShoppingListModal, setAddNewShoppingListModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const { shoppingLists, setShoppingLists } = props.shoppingLists;
-  const current_user = [
-    { id: 1, name: "Jan Novak" },
-    { id: 2, name: "Petr Novak" },
-    { id: 3, name: "Karel Novak" },
-  ].at(Math.floor(Math.random() * 3));
+
+  const addListMutation = useMutation(addNewShoppingList, {
+    onSuccess: () => {
+      console.log("Added");
+    },
+  });
+
+  const handleAddList = (shoppingList: AddNewListRequest) => {
+    try {
+      addListMutation.mutateAsync(shoppingList);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const currentUser = useOutletContext<OutletContext>().user;
 
   useEffect(() => {
     if (showToast) {
@@ -19,23 +57,22 @@ function AddNewListModal(props) {
     }
   }, [showToast]);
 
-  const onAddNewShoppingList = (e) => {
+  const onAddNewShoppingList = (e: React.FormEvent<InputFormElement>) => {
     e.preventDefault();
-    const shoppingListName = e.target.elements.shopping_list_name.value;
-    const newShoppingList = {
-      id: Math.floor(Math.random() * 1000) + 10,
+    const shoppingListName = e.currentTarget.elements.shopping_list_name.value;
+    const newShoppingList: AddNewListRequest = {
       name: shoppingListName,
-      author: current_user.name,
+      author: currentUser.user.name,
       items: [],
       users: [
         {
-          id: current_user.id,
-          name: current_user.name,
-          role: "Author",
+          id: currentUser.user.id,
+          name: currentUser.user.name,
+          role: Role.OWNER,
         },
       ],
     };
-    setShoppingLists([...shoppingLists, newShoppingList]);
+    handleAddList(newShoppingList);
     setAddNewShoppingListModal(false);
     setShowToast(true);
   };
@@ -51,7 +88,7 @@ function AddNewListModal(props) {
       <Modal
         dismissible
         show={addNewShoppingListModal}
-        onClose={(_) => setAddNewShoppingListModal(false)}
+        onClose={() => setAddNewShoppingListModal(false)}
       >
         <Modal.Header>Add new shopping list</Modal.Header>
         <Modal.Body>
@@ -78,7 +115,7 @@ function AddNewListModal(props) {
           </div>
         </Modal.Body>
       </Modal>
-      {showToast && <Toast text="Shopping list was successfully created." />}
+      {showToast && <Toast>Shopping list was successfully created.</Toast>}
     </div>
   );
 }

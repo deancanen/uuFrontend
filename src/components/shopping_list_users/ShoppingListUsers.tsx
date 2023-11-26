@@ -1,16 +1,47 @@
 import { Button, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Role, IShoppingList } from "../../interfaces/ShoppingList";
+import { OutletContext } from "../../pages/layout/layout";
+import { API } from "../../service/restService";
+import { useMutation } from "react-query";
 
-function ShoppingListUsers(props) {
+interface ShoppingListUsersProps {
+  shoppingList: IShoppingList;
+  currentUser: OutletContext["user"];
+}
+
+async function updateShoppingList(shoppingList: IShoppingList) {
+  const res = await API.post(`/shoppingLists/${shoppingList.id}`, shoppingList);
+  return res.data;
+}
+
+function ShoppingListUsers(props: ShoppingListUsersProps) {
   const [shoppingListUsers, setShoppingListUsers] = useState(
     props.shoppingList.users
   );
+
+  const currentUser = props.currentUser;
+
+  const isAuthor = props.shoppingList.ownerId === currentUser.user.id;
+
+  const updateShoppingListMutation = useMutation(updateShoppingList, {
+    onSuccess: () => {
+      console.log(`Updated shopping list ${props.shoppingList.id}`);
+    },
+  });
+
+  useEffect(() => {
+    updateShoppingListMutation.mutate({
+      ...props.shoppingList,
+      users: shoppingListUsers,
+    });
+  }, [shoppingListUsers]);
 
   const [newUserMode, setNewUserMode] = useState(false);
   const [newUser, setNewUser] = useState({
     id: Math.floor(Math.random() * 1000) + 10,
     name: "New User",
-    role: "User",
+    role: Role.EDITOR,
   });
 
   return (
@@ -25,40 +56,40 @@ function ShoppingListUsers(props) {
             <div className="ml-3 grid md:grid-cols-2 justify-between">
               <div className="col-span-1 gap-y-3 mb-1 sm:mb-0">
                 <p className="text-xl font-bold text-black">
-                  {props.currentUser.id === user.id
+                  {props.currentUser.user.id === user.id
                     ? user.name + " (you)"
                     : user.name}
                 </p>
                 <p className="text-sm font-medium text-gray-900">{user.role}</p>
               </div>
               <div className="col-span-1 flex gap-x-3 mb-1 text-sm font-medium justify-end">
-                {props.currentUser.id === user.id && user.role === "User" && (
-                  <Button
-                    color="failure"
-                    onClick={(_) => {
-                      alert(
-                        "You have removed yourself from the list. (potom redirect nejspis na listy, zatim refreshuju stranku)"
-                      );
-                      window.location.reload();
-                    }}
-                  >
-                    Leave this shopping list
-                  </Button>
-                )}
-                {props.currentUser.id !== user.id &&
-                  user.role === "User" &&
-                  props.currentUser.role === "Author" && (
+                {props.currentUser.user.id === user.id &&
+                  user.role === Role.EDITOR && (
                     <Button
                       color="failure"
                       onClick={(_) => {
                         setShoppingListUsers(
                           shoppingListUsers.filter((u) => u.id !== user.id)
                         );
+
+                        window.location.href = "/";
                       }}
                     >
-                      Remove User
+                      Leave this shopping list
                     </Button>
                   )}
+                {currentUser.user.id !== user.id && isAuthor && (
+                  <Button
+                    color="failure"
+                    onClick={(_) => {
+                      setShoppingListUsers(
+                        shoppingListUsers.filter((u) => u.id !== user.id)
+                      );
+                    }}
+                  >
+                    Remove User
+                  </Button>
+                )}
               </div>
             </div>
           </li>
@@ -84,7 +115,7 @@ function ShoppingListUsers(props) {
                     setNewUser({
                       id: Math.floor(Math.random() * 1000) + 10,
                       name: "New User",
-                      role: "User",
+                      role: Role.EDITOR,
                     });
                   }}
                 >
@@ -97,7 +128,7 @@ function ShoppingListUsers(props) {
                     setNewUser({
                       id: Math.floor(Math.random() * 1000) + 10,
                       name: "New User",
-                      role: "User",
+                      role: Role.EDITOR,
                     });
                   }}
                 >
@@ -108,7 +139,7 @@ function ShoppingListUsers(props) {
           </li>
         )}
       </ul>
-      {!newUserMode && props.currentUser.role === "Author" && (
+      {!newUserMode && isAuthor && (
         <Button
           color="blue"
           className="mt-4"

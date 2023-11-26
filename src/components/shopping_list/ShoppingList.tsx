@@ -1,24 +1,56 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button, Select, TextInput } from "flowbite-react";
+import { IShoppingList } from "../../interfaces/ShoppingList";
+import { useOutletContext } from "react-router-dom";
+import { OutletContext } from "../../pages/layout/layout";
+import { API } from "../../service/restService";
+import { useMutation } from "react-query";
 
-function ShoppingList(props) {
-  const { shoppingList, setShoppingList } = props;
+interface ShoppingListProps {
+  shoppingList: IShoppingList;
+}
+
+async function updateShoppingList(shoppingList: IShoppingList) {
+  const res = await API.post(`/shoppingLists/${shoppingList.id}`, shoppingList);
+  return res.data;
+}
+
+function ShoppingList(props: ShoppingListProps) {
+  const { shoppingList } = props;
   const [shoppingListItems, setShoppingListItems] = useState(
-    shoppingList.items
+    shoppingList?.items
   );
 
-  const [shoppingListName, setShoppingListName] = useState(shoppingList.name);
+  const [shoppingListName, setShoppingListName] = useState(shoppingList?.name);
 
-  const inputRef = useRef();
+  const updateShoppingListMutation = useMutation(updateShoppingList, {
+    onSuccess: () => {
+      console.log(`Updated shopping list ${shoppingList.id}`);
+    },
+  });
+
+  useEffect(() => {
+    updateShoppingListMutation.mutate({
+      ...shoppingList,
+      items: shoppingListItems,
+      name: shoppingListName,
+    });
+  }, [shoppingListItems, shoppingListName]);
+
+  const currentUser = useOutletContext<OutletContext>().user;
+
+  const isAuthor = props.shoppingList?.ownerId === currentUser?.user.id;
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [editMode, setEditMode] = useState(false);
 
   const [newItemMode, setNewItemMode] = useState(false);
   const [newItemName, setNewItemName] = useState("New Item");
 
-  const handleEditChange = (e) => {
+  const handleEditChange = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setShoppingListName(inputRef.current.value || shoppingListName);
+    setShoppingListName(inputRef.current?.value || shoppingListName);
     setEditMode(false);
   };
 
@@ -33,8 +65,8 @@ function ShoppingList(props) {
               <div className="inline-flex space-x-4">
                 <form onSubmit={handleEditChange}>
                   <label
-                    for="shopping_list_name"
-                    class="block mb-2 font-bold text-gray-900 dark:text-white"
+                    htmlFor="shopping_list_name"
+                    className="block mb-2 font-bold text-gray-900 dark:text-white"
                   >
                     Edit shopping list name
                   </label>
@@ -43,7 +75,7 @@ function ShoppingList(props) {
                       type="text"
                       ref={inputRef}
                       id="shopping_list_name"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder={shoppingListName}
                     />
                     <Button outline pill type="submit">
@@ -59,7 +91,7 @@ function ShoppingList(props) {
                 <h1 className="text-3xl font-extrabold underline text-black dark:text-white">
                   {shoppingListName}
                 </h1>
-                {props.currentUser.role === "Author" && (
+                {isAuthor && (
                   <Button outline pill onClick={(_) => setEditMode(true)}>
                     <svg
                       className="w-[16px] h-[16px] black dark:text-white"
