@@ -2,7 +2,6 @@ import NavBar from "../../components/navbar/navbar";
 import { Outlet } from "react-router-dom";
 import { API } from "../../service/restService";
 import { useQuery } from "react-query";
-
 async function login() {
   const res = await API.post("/login");
   return res.data;
@@ -28,7 +27,7 @@ function Layout() {
         <>
           <NavBar currentUser={data?.user} />
           <Outlet context={{ user: data } as OutletContext} />
-          <div className="footer p-16" />
+          <div className="footer p-16 bg-inherit" />
         </>
       )}
     </>

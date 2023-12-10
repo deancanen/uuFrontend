@@ -9,6 +9,7 @@ import { API } from "../../service/restService";
 import { useMutation } from "react-query";
 import { useOutletContext } from "react-router-dom";
 import { OutletContext } from "../../pages/layout/layout";
+import { useTranslation } from "react-i18next";
 
 interface AddNewListRequest {
   name: string;
@@ -32,6 +33,7 @@ async function addNewShoppingList(shoppingList: AddNewListRequest) {
 function AddNewListModal() {
   const [addNewShoppingListModal, setAddNewShoppingListModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const { t } = useTranslation();
 
   const addListMutation = useMutation(addNewShoppingList, {
     onSuccess: () => {
@@ -83,14 +85,14 @@ function AddNewListModal() {
         gradientDuoTone="pinkToOrange"
         onClick={(_) => setAddNewShoppingListModal(true)}
       >
-        Add new shopping list
+        {t("Add new shopping list")}
       </Button>
       <Modal
         dismissible
         show={addNewShoppingListModal}
         onClose={() => setAddNewShoppingListModal(false)}
       >
-        <Modal.Header>Add new shopping list</Modal.Header>
+        <Modal.Header>{t("Add new shopping list")}</Modal.Header>
         <Modal.Body>
           <div className="inline-flex space-x-4">
             <form onSubmit={onAddNewShoppingList}>
@@ -98,7 +100,7 @@ function AddNewListModal() {
                 htmlFor="shopping_list_name"
                 className="block mb-2 font-bold text-gray-900 dark:text-white"
               >
-                Shopping list name
+                {t("Shopping list name")}
               </label>
               <div className="inline-flex space-x-2">
                 <TextInput
@@ -108,14 +110,16 @@ function AddNewListModal() {
                   placeholder="Shopping list name"
                 />
                 <Button outline pill type="submit">
-                  Save
+                  {t("Save")}
                 </Button>
               </div>
             </form>
           </div>
         </Modal.Body>
       </Modal>
-      {showToast && <Toast>Shopping list was successfully created.</Toast>}
+      {showToast && (
+        <Toast>{t("Shopping list was successfully created")}.</Toast>
+      )}
     </div>
   );
 }

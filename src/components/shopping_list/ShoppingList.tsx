@@ -5,6 +5,7 @@ import { useOutletContext } from "react-router-dom";
 import { OutletContext } from "../../pages/layout/layout";
 import { API } from "../../service/restService";
 import { useMutation } from "react-query";
+import { useTranslation } from "react-i18next";
 
 interface ShoppingListProps {
   shoppingList: IShoppingList;
@@ -20,6 +21,8 @@ function ShoppingList(props: ShoppingListProps) {
   const [shoppingListItems, setShoppingListItems] = useState(
     shoppingList?.items
   );
+
+  const { t } = useTranslation();
 
   const [shoppingListName, setShoppingListName] = useState(shoppingList?.name);
 
@@ -58,8 +61,8 @@ function ShoppingList(props: ShoppingListProps) {
 
   return (
     { shoppingList } && (
-      <div className="mt-6 mx-20 block">
-        <div className="grid grid-cols-2">
+      <div className="mt-6 mx-14 md:mx-20 block">
+        <div className="grid grid-cols-1 md:grid-cols-2 space-y-4">
           {editMode ? (
             <>
               <div className="inline-flex space-x-4">
@@ -68,18 +71,17 @@ function ShoppingList(props: ShoppingListProps) {
                     htmlFor="shopping_list_name"
                     className="block mb-2 font-bold text-gray-900 dark:text-white"
                   >
-                    Edit shopping list name
+                    {t("Edit shopping list name")}
                   </label>
                   <div className="inline-flex space-x-2">
                     <TextInput
                       type="text"
                       ref={inputRef}
                       id="shopping_list_name"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder={shoppingListName}
                     />
                     <Button outline pill type="submit">
-                      Save
+                      {t("Save")}
                     </Button>
                   </div>
                 </form>
@@ -113,9 +115,9 @@ function ShoppingList(props: ShoppingListProps) {
               required
               onChange={(e) => setShoppingListFilter(e.target.value)}
             >
-              <option value="all">All</option>
-              <option value="resolved">Resolved</option>
-              <option value="unresolved">Unresolved</option>
+              <option value="all">{t("All")}</option>
+              <option value="resolved">{t("Resolved")}</option>
+              <option value="unresolved">{t("Unresolved")}</option>
             </Select>
           </div>
         </div>
@@ -136,8 +138,10 @@ function ShoppingList(props: ShoppingListProps) {
               <li key={item.name} className="py-4">
                 <div className="ml-3 grid md:grid-cols-2 justify-between">
                   <div className="col-span-1 gap-y-3 mb-1 sm:mb-0">
-                    <p className="text-xl font-bold text-black">{item.name}</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xl font-bold text-black dark:text-gray-200">
+                      {item.name}
+                    </p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-400">
                       {item.resolved ? "Resolved ✅" : "Unresolved ❌"}
                     </p>
                   </div>
@@ -152,7 +156,7 @@ function ShoppingList(props: ShoppingListProps) {
                         );
                       }}
                     >
-                      Remove from list
+                      {t("Remove from list")}
                     </Button>
 
                     {item.resolved ? (
@@ -170,7 +174,7 @@ function ShoppingList(props: ShoppingListProps) {
                           );
                         }}
                       >
-                        Set as unresolved
+                        {t("Set as unresolved")}
                       </Button>
                     ) : (
                       <Button
@@ -187,7 +191,7 @@ function ShoppingList(props: ShoppingListProps) {
                           );
                         }}
                       >
-                        Set as resolved
+                        {t("Set as resolved")}
                       </Button>
                     )}
                   </div>
@@ -220,14 +224,14 @@ function ShoppingList(props: ShoppingListProps) {
 
                   <div className="col-span-1 flex gap-x-3 mb-1 text-sm font-medium justify-end">
                     <Button color="success" className="md:w-1/2" type="submit">
-                      Add to list
+                      {t("Add to list")}
                     </Button>
                     <Button
                       color="failure"
                       className="md:w-1/2"
                       onClick={() => setNewItemMode(false)}
                     >
-                      Cancel
+                      {t("Cancel")}
                     </Button>
                   </div>
                 </div>
@@ -241,7 +245,7 @@ function ShoppingList(props: ShoppingListProps) {
             className="mt-4"
             onClick={(_) => setNewItemMode(true)}
           >
-            Add new item
+            {t("Add new item")}
           </Button>
         )}
       </div>

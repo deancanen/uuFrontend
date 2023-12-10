@@ -4,6 +4,7 @@ import { Role, IShoppingList } from "../../interfaces/ShoppingList";
 import { OutletContext } from "../../pages/layout/layout";
 import { API } from "../../service/restService";
 import { useMutation } from "react-query";
+import { useTranslation } from "react-i18next";
 
 interface ShoppingListUsersProps {
   shoppingList: IShoppingList;
@@ -19,6 +20,8 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
   const [shoppingListUsers, setShoppingListUsers] = useState(
     props.shoppingList.users
   );
+
+  const { t } = useTranslation();
 
   const currentUser = props.currentUser;
 
@@ -45,9 +48,9 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
   });
 
   return (
-    <div className="mt-6 mx-20 block">
+    <div className="mt-6 mx-14 md:mx-20 block">
       <h1 className="text-3xl font-extrabold text-black dark:text-white">
-        List of shopping list users
+        {t("List of shopping list users")}
       </h1>
 
       <ul className="divide-y divide-gray-200">
@@ -55,12 +58,14 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
           <li key={user.name} className="py-4">
             <div className="ml-3 grid md:grid-cols-2 justify-between">
               <div className="col-span-1 gap-y-3 mb-1 sm:mb-0">
-                <p className="text-xl font-bold text-black">
+                <p className="text-xl font-bold text-black dark:text-gray-200">
                   {props.currentUser.user.id === user.id
                     ? user.name + " (you)"
                     : user.name}
                 </p>
-                <p className="text-sm font-medium text-gray-900">{user.role}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-400">
+                  {user.role}
+                </p>
               </div>
               <div className="col-span-1 flex gap-x-3 mb-1 text-sm font-medium justify-end">
                 {props.currentUser.user.id === user.id &&
@@ -75,7 +80,7 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
                         window.location.href = "/";
                       }}
                     >
-                      Leave this shopping list
+                      {t("Leave this shopping list")}
                     </Button>
                   )}
                 {currentUser.user.id !== user.id && isAuthor && (
@@ -87,7 +92,7 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
                       );
                     }}
                   >
-                    Remove User
+                    {t("Remove User")}
                   </Button>
                 )}
               </div>
@@ -119,7 +124,7 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
                     });
                   }}
                 >
-                  Add User
+                  {t("Add User")}
                 </Button>
                 <Button
                   color="failure"
@@ -132,7 +137,7 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
                     });
                   }}
                 >
-                  Cancel
+                  {t("Cancel")}
                 </Button>
               </div>
             </div>
@@ -145,7 +150,7 @@ function ShoppingListUsers(props: ShoppingListUsersProps) {
           className="mt-4"
           onClick={(_) => setNewUserMode(true)}
         >
-          Add new User
+          {t("Add User")}
         </Button>
       )}
     </div>

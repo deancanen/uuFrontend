@@ -6,6 +6,7 @@ import { API } from "../../service/restService";
 import { useQuery, useMutation } from "react-query";
 import { IShoppingList } from "../../interfaces/ShoppingList";
 import { OutletContext } from "../layout/layout";
+import { useTranslation } from "react-i18next";
 
 async function getShoppingLists() {
   const res = await API.get("/shoppingLists");
@@ -20,6 +21,8 @@ async function deleteShoppingList(id: number) {
 function ShoppingListOverview() {
   const [openModal, setOpenModal] = useState(false);
   const [deleteList, setDeleteList] = useState<number | null>(null);
+
+  const { t } = useTranslation();
 
   const { data, isLoading, error } = useQuery(
     "shoppingLists",
@@ -49,8 +52,8 @@ function ShoppingListOverview() {
           data.map((shoppingList: IShoppingList) => {
             return (
               <Card key={shoppingList.id} className="min-h-full max-w">
-                <div className="flex justify-end px-4 pt-4">
-                  <Dropdown inline label="">
+                <div className="flex justify-end px-4 pt-4 dark:text-gray-200">
+                  <Dropdown inline label="" dismissOnClick={false}>
                     {shoppingList.ownerId === currentUser.user.id ? (
                       <Dropdown.Item>
                         <a
@@ -60,14 +63,14 @@ function ShoppingListOverview() {
                           }}
                           className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
                         >
-                          Delete list
+                          {t("Delete list")}
                         </a>
                       </Dropdown.Item>
                     ) : (
-                      <Dropdown.Item>
-                        <a className="cursor-not-allowed block px-4 py-2 text-sm text-gray-500 bg-slate-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">
-                          Delete list
-                        </a>
+                      <Dropdown.Item className="cursor-not-allowed">
+                        <span className="block px-4 py-2 text-sm text-gray-500 dark:text-gray-200 dark:hover:bg-gray dark:hover:text-white">
+                          {t("Delete list")}
+                        </span>
                       </Dropdown.Item>
                     )}
                   </Dropdown>
@@ -76,12 +79,12 @@ function ShoppingListOverview() {
                   {shoppingList.name}
                 </h5>
                 <p className="font-normal text-gray-700 dark:text-gray-400">
-                  Author: {shoppingList.author}
+                  {t("Author", { author: shoppingList.author })}
                 </p>
                 <div className="align-bottom">
                   <NavLink to={"/shoppingList/" + shoppingList.id}>
                     <Button>
-                      View shopping list
+                      {t("View shopping list")}
                       <svg
                         className="-mr-1 ml-2 h-4 w-4"
                         fill="currentColor"
@@ -104,7 +107,9 @@ function ShoppingListOverview() {
       <AddNewListModal />
 
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>Are you sure you want to delete this list?</Modal.Header>
+        <Modal.Header>
+          {t("Are you sure you want to delete this list")}
+        </Modal.Header>
         <Modal.Footer>
           <Button
             onClick={() => {
@@ -113,10 +118,10 @@ function ShoppingListOverview() {
               setOpenModal(false);
             }}
           >
-            Delete
+            {t("Delete")}
           </Button>
           <Button color="gray" onClick={() => setOpenModal(false)}>
-            No
+            {t("No")}
           </Button>
         </Modal.Footer>
       </Modal>

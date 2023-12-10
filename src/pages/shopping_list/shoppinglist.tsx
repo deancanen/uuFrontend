@@ -4,6 +4,7 @@ import { API } from "../../service/restService";
 import { useQuery } from "react-query";
 import { OutletContext } from "../layout/layout";
 import ShoppingList from "../../components/shopping_list/ShoppingList";
+import { useTranslation } from "react-i18next";
 
 async function getShoppingList(id: string) {
   const res = await API.get(`/shoppingLists/${id}`);
@@ -12,6 +13,8 @@ async function getShoppingList(id: string) {
 
 function ShoppingListPage() {
   const { id } = useParams();
+
+  const { t } = useTranslation();
 
   const currentUser = useOutletContext<OutletContext>().user;
 
@@ -24,7 +27,7 @@ function ShoppingListPage() {
   if (error)
     return (
       <h1 className="text-center mt-4 mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-        Shopping list with id '{id}' not found
+        {t("Shopping list with id", { id })}
       </h1>
     );
 
