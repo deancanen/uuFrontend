@@ -7,6 +7,7 @@ import { useQuery, useMutation } from "react-query";
 import { IShoppingList } from "../../interfaces/ShoppingList";
 import { OutletContext } from "../layout/layout";
 import { useTranslation } from "react-i18next";
+import Chart from "react-apexcharts";
 
 async function getShoppingLists() {
   const res = await API.get("/shoppingLists");
@@ -103,6 +104,32 @@ function ShoppingListOverview() {
               </Card>
             );
           })}
+      </div>
+
+      <div className="mt-10">
+        {data && (
+          <Chart
+            options={{
+              chart: {
+                id: "shoppingListOverviewChart",
+                type: "bar",
+              },
+            }}
+            series={[
+              {
+                name: "Items",
+                data: data.map((list: IShoppingList) => {
+                  return {
+                    x: list.name,
+                    y: list.items.length,
+                  };
+                }),
+              },
+            ]}
+            type="bar"
+            width="380"
+          />
+        )}
       </div>
       <AddNewListModal />
 

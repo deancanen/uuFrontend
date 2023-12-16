@@ -6,6 +6,7 @@ import { OutletContext } from "../../pages/layout/layout";
 import { API } from "../../service/restService";
 import { useMutation } from "react-query";
 import { useTranslation } from "react-i18next";
+import Chart from "react-apexcharts";
 
 interface ShoppingListProps {
   shoppingList: IShoppingList;
@@ -248,6 +249,23 @@ function ShoppingList(props: ShoppingListProps) {
             {t("Add new item")}
           </Button>
         )}
+        <div className="content-center">
+          <Chart
+            options={{
+              chart: {
+                id: "piechart",
+                type: "pie",
+              },
+              labels: ["Resolved", "Unresolved"],
+            }}
+            series={[
+              shoppingListItems.filter((i) => i.resolved).length,
+              shoppingListItems.filter((i) => !i.resolved).length,
+            ]}
+            type="pie"
+            width="380"
+          />
+        </div>
       </div>
     )
   );
